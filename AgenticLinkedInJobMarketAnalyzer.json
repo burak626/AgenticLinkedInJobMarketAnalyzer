@@ -1,0 +1,582 @@
+{
+  "name": "AgenticAILinkedInJobAnalyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://linkedin-data-api.p.rapidapi.com/get-job-details",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $json.data.id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "linkedin-data-api.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "0ce4de629cmshc09de2808c44b6fp16ca73jsna492a41126e0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        -240
+      ],
+      "id": "16704bf6-7118-498f-9e01-1fbc5df9431b",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "https://linkedin-data-api.p.rapidapi.com/search-jobs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "keywords",
+              "value": "Agentic AI"
+            },
+            {
+              "name": "locationId",
+              "value": "92000000"
+            },
+            {
+              "name": "datePosted",
+              "value": "pastWeek"
+            },
+            {
+              "name": "sort",
+              "value": "mostRelevant"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "linkedin-data-api.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "0ce4de629cmshc09de2808c44b6fp16ca73jsna492a41126e0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        -240
+      ],
+      "id": "75dfeb93-adc8-4ed5-88a9-a6a60277195a",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -240
+      ],
+      "id": "582efed6-d09b-4e58-989a-11695cb425bd",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09f91fd4-3c1d-4ecb-a19b-4683ebd4d23b",
+              "name": "data.title",
+              "value": "={{ $json.data.title }}",
+              "type": "string"
+            },
+            {
+              "id": "0771bdeb-f54a-4e9f-9f8c-a0d388e3e6e7",
+              "name": "data.description",
+              "value": "={{ $json.data.description }}",
+              "type": "string"
+            },
+            {
+              "id": "327eeab8-f0fa-4afa-b22f-39cb5507d1f3",
+              "name": "data.location",
+              "value": "={{ $json.data.location }}",
+              "type": "string"
+            },
+            {
+              "id": "f852f442-9191-4d0f-8779-28a62bae0e52",
+              "name": "data.type",
+              "value": "={{ $json.data.type }}",
+              "type": "string"
+            },
+            {
+              "id": "1e6c7471-1a06-4a22-a706-b5c1e5d0038d",
+              "name": "data.benefits",
+              "value": "={{ $json.data.benefits }}",
+              "type": "string"
+            },
+            {
+              "id": "461fd648-92fc-4675-b409-6ce033531f4e",
+              "name": "data.formattedJobFunctions",
+              "value": "={{ $json.data.formattedJobFunctions }}",
+              "type": "array"
+            },
+            {
+              "id": "fcd5360a-6bea-403b-ac59-6ea279a65755",
+              "name": "data.company.specialities",
+              "value": "={{ $json.data.company.specialities }}",
+              "type": "array"
+            },
+            {
+              "id": "a8b7b2a6-26f2-45c8-b799-f503b143979a",
+              "name": "data.url",
+              "value": "={{ $json.data.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        740,
+        -240
+      ],
+      "id": "d2c26c03-81e4-4d23-a8db-35ad98be6fe0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Please analyze the following job description and extract all specific technical qualifications mentioned. Focus only on tools, platforms, languages, frameworks, libraries, and other technical requirements. Ignore general qualifications like education level, years of experience, or location.\n\nJob Description:{{ $json.data.description }}\n\nFormat your response as a structured list of technical qualifications, categorized by type (e.g., Programming Languages, Frameworks, Tools, etc.). If the job specifies required vs. preferred skills, please maintain that distinction in your response."
+            },
+            {
+              "content": "You are an AI Technical Qualification Extractor designed to analyze job descriptions and identify specific technical requirements.\n\nYour primary function is to extract and categorize detailed technical qualifications from job descriptions, with a focus on:\n\n1. Programming languages (Python, Java, C++, JavaScript, etc.)\n2. Frameworks and libraries (React, TensorFlow, Django, Spring, etc.)\n3. Tools and software (Git, Docker, Kubernetes, Adobe Suite, etc.)\n4. Platforms and environments (AWS, Azure, Google Cloud, Linux, etc.)\n5. Database technologies (SQL, MongoDB, PostgreSQL, etc.)\n6. Development methodologies (Agile, DevOps, CI/CD, etc.)\n7. Hardware-specific knowledge (embedded systems, FPGA, etc.)\n8. Industry-specific technical tools (CAD software, BIM, etc.)\n9. Technical standards and protocols (REST, GraphQL, TCP/IP, etc.)\n10. Specific technical certifications (AWS Certified Solutions Architect, etc.)\n\nDo NOT focus on:\n- General educational requirements (degrees, diplomas)\n- Years of experience (unless tied to a specific technology)\n- Soft skills or personality traits\n- Location requirements\n- General industry knowledge\n- Company benefits or culture\n\nWhen analyzing a job description:\n1. Read the entire description thoroughly\n2. Identify all technical requirements and qualifications\n3. Categorize them appropriately\n4. List them in a clear, structured format\n5. Include the level of proficiency required if specified (beginner, expert, etc.)\n\nPresent your findings as a structured list with appropriate categories and subcategories when relevant. Be comprehensive but focus only on technical qualifications.",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        960,
+        -240
+      ],
+      "id": "423f6bd7-8915-4ec8-b070-cc5eb2f1803c",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "VoHMb7O55rqzXqOK",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get ALL input items passed to the node as an array\nconst items = $input.all();\n\n// Prepare an array to hold the results for each processed item\nconst results = [];\n\n// Loop through each item that came into the node\nfor (const item of items) {\n  // --- Get the input text for the CURRENT item ---\n  let inputText = '';\n  // Check if the path exists and is a string in the current item's JSON data\n  // Adjust 'message.content' if your actual field name is different\n  if (item.json && item.json.message && typeof item.json.message.content === 'string') {\n    inputText = item.json.message.content;\n  } else {\n    // Optional: Handle items that don't have the expected structure\n    // console.log(`Item skipped or missing data: ${JSON.stringify(item.json)}`);\n    // If you want to pass items without 'message.content' through unchanged:\n    // results.push(item); // Add the original item to results\n    // continue; // Skip the cleaning logic for this item\n  }\n\n  // --- Apply the cleaning logic (same as before) ---\n  // 1. Replace all newline characters (\\n) with a single space\n  let cleanedText = inputText.replace(/\\n/g, ' ');\n  // 2. Remove common markdown formatting characters like '#', '*', '-'\n  cleanedText = cleanedText.replace(/[#*-]/g, '');\n  // 3. Replace multiple consecutive whitespace characters with a single space\n  cleanedText = cleanedText.replace(/\\s{2,}/g, ' ');\n  // 4. Trim leading and trailing whitespace\n  cleanedText = cleanedText.trim();\n  // --- End of cleaning logic ---\n\n  // --- Prepare the output item ---\n  // It's good practice to keep other data from the original item.\n  // We'll clone the original item's JSON data...\n  const newItemJson = JSON.parse(JSON.stringify(item.json));\n\n  // ...and update the relevant field with the cleaned text.\n  // You can either overwrite the original field:\n  if (newItemJson.message) { // Ensure the 'message' object exists\n     newItemJson.message.content = cleanedText;\n  }\n  // OR store it in a new field (uncomment the line below and comment out the line above):\n  // newItemJson.message.cleanedContent = cleanedText;\n\n\n  // Add the processed item (with its modified JSON) to our results array\n  // If your items might have binary data you need to preserve, use:\n  // results.push({ json: newItemJson, binary: item.binary });\n  // Otherwise, just the json is usually sufficient:\n  results.push({ json: newItemJson });\n}\n\n// Return the array of processed items.\n// n8n will output each element in this array as a separate item.\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        -240
+      ],
+      "id": "c7e32a7d-6165-448c-9730-40460948e9fa",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "60750529-42b6-448d-b4c0-fc4835926790",
+              "name": "Date",
+              "value": "==Today()",
+              "type": "string"
+            },
+            {
+              "id": "6b33841c-620d-4465-9cc6-6845a02568d3",
+              "name": "Content",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "065c283c-bd8c-4938-aeba-4a666486fff9",
+              "name": "url",
+              "value": "={{ $('Edit Fields').item.json.data.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        -240
+      ],
+      "id": "e02037e4-4c46-4284-b229-4ff942540a11",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "O3-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=I've collected a set of job descriptions for technical roles in the AI field. Please analyze these descriptions and provide me with statistics on the most common technical requirements.\n\nSpecifically:\n1. Calculate the percentage of job listings that mention each technical skill\n2. Group the skills into logical categories (Programming Languages, AI/ML Concepts, Frameworks, Platforms, etc.)\n3. Present the results in descending order of frequency within each category\n4. Include both percentages and fractions (e.g., \"87.5% (21/24)\") for precision\n5. Add a brief \"Key Insights\" section highlighting the most significant patterns\n\nHere are the job descriptions:{{ $json.Content }}"
+            },
+            {
+              "content": "You are an AI Job Market Analyzer specialized in processing and extracting insights from technical job descriptions. Your primary function is to identify patterns, requirements, and trends across multiple job listings to help users understand market demands.\n\nKey capabilities:\n- Extract and categorize technical requirements including programming languages, frameworks, tools, platforms, and specialized knowledge areas\n- Calculate frequency statistics and percentages of mentioned skills across the dataset\n- Identify correlations between different skill requirements\n- Present findings in a clear, structured format with precise statistics\n\nYour analysis should follow these guidelines:\n1. Parse job descriptions methodically, identifying all technical requirements\n2. Group requirements into logical categories (e.g., Programming Languages, Frameworks, Cloud Platforms)\n3. Calculate percentages based on frequency of mention across all job postings\n4. Present findings in descending order of frequency within each category\n5. Include key insights about most in-demand skills and emerging trends\n6. Use precise fractions to support percentage claims (e.g., \"87.5% (21/24)\")\n7. Be objective and data-driven in your analysis\n\nWhen presenting results:\n- Use clear section headings\n- Present statistics in a visually accessible format\n- Highlight the most significant findings\n- Maintain technical accuracy and precision\n\nYou will analyze the job descriptions provided in the user input and present a comprehensive analysis that helps the user understand technical skill demands in the market.",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1480,
+        40
+      ],
+      "id": "38de8cf2-2511-4eb5-97e6-7c1f507e8f8f",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VoHMb7O55rqzXqOK",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let combined = '';\n\nfor (const item of items) {\n  combined += item.json.Content;\n}\n\nreturn [{\n  json: {\n    Content: combined\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        40
+      ],
+      "id": "70fc8d59-9d32-44d1-a2c8-ee0e8bc36718",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10Wtv6NTGIFz3mf_TGKk3eZKHvrrmfN_OpHVSlBuImuw",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Job Scrape",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10Wtv6NTGIFz3mf_TGKk3eZKHvrrmfN_OpHVSlBuImuw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10Wtv6NTGIFz3mf_TGKk3eZKHvrrmfN_OpHVSlBuImuw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "==Today()",
+            "Content": "={{ $json.message.content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1800,
+        40
+      ],
+      "id": "012368dc-6ddb-4db4-83bd-831d538ea610",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PnU352VsnEejhLhB",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 17
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        -240
+      ],
+      "id": "7d0ea760-dbcf-46b9-8430-934a31323b36",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10Wtv6NTGIFz3mf_TGKk3eZKHvrrmfN_OpHVSlBuImuw",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Job Scrape",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10Wtv6NTGIFz3mf_TGKk3eZKHvrrmfN_OpHVSlBuImuw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10Wtv6NTGIFz3mf_TGKk3eZKHvrrmfN_OpHVSlBuImuw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "==Today()",
+            "Content": "={{ $json.message.content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        -240
+      ],
+      "id": "ebe6ca75-80cb-4a11-bff4-333259f9a37a",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PnU352VsnEejhLhB",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b192196a-1af6-437d-bf63-1faca10a51cb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4a2952d750233c02800975f682ffd82d00294fb62c8e98c152bd79f86550ccf2"
+  },
+  "id": "5dO2QjzMzPu4kcxg",
+  "tags": []
+}
